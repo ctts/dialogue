@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- jquery -->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+    <!-- css初始化 -->
+    <link rel="stylesheet" href="./css/reset.css">
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+    <!-- css文件 -->
+    <link rel="stylesheet" href="./css/createTest.css">
+
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="control-panel">
+        <button class="btn btn-default" id="addlist">添加</button>
+        <button class="btn btn-default" id="complete">完成</button>
+        <button class="btn btn-default" id="turnTo">转到</button>
+    </div>
+    <div class="total-container">
+        <div class="list-container">
+            <div class="form-group">
+                <label for="">ID</label>
+                <input type="text" class="form-control list-id" value="1">
+            </div>
+            <button class="btn btn-default " name="addContent">添加内容</button>
+            <button class="btn btn-default " name="">折叠内容</button>
+
+            <div class="keyNode">
+                <div class="form-group">
+                    <label for="">内容</label>
+                    <input type="text" class="form-control content">
+                </div>
+                <div class="form-group">
+                    <label for="">左按钮</label>
+                    <input type="text" class="form-control left-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">左结果</label>
+                    <input type="text" class="form-control left-result">
+                </div>
+                <div class="form-group">
+                    <label for="">右按钮</label>
+                    <input type="text" class="form-control right-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">右结果</label>
+                    <input type="text" class="form-control right-result">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- 引入类 -->
+    <script src="./js/PlotNode.js"></script>
+</body>
+
+<script>
+    let allPlotQueues = new Map();
+    function createPlotQueue() {
+        let list_containers = document.querySelectorAll('.list-container');
+        for (let list of list_containers) {
+            let id = list.querySelector('.list-id').value;
+            let nodes = list.querySelectorAll('.normalNode');
+            let key = list.querySelector('.keyNode');
+            let plotArray = [];
+            for (let i = 0; i < nodes.length; i++) {
+                let content = nodes[i].querySelector('.content').value;
+                let left_btn = nodes[i].querySelector('.left-btn').value;
+                let right_btn = nodes[i].querySelector('.right-btn').value;
+                // 新建剧情节点
+                let plotNode = new PlotNode(i, content, left_btn, right_btn);
+                plotArray.push(plotNode);
+            }
+            // 新建关键节点对象
+            let keyNodeContent = key.querySelector('.content').value;
+            let keyNodeLeftBtn = key.querySelector('.left-btn').value;
+            let keyNodeRightBtn = key.querySelector('.right-btn').value;
+            let keyNodeLeftResult = key.querySelector('.left-result').value;
+            let keyNodeRightResult = key.querySelector('.right-result').value;
+            let keyNode = new KeyNode(-1, keyNodeContent, getChoice(keyNodeLeftResult, keyNodeLeftBtn), getChoice(keyNodeRightResult, keyNodeRightBtn));
+            //新建一个剧情对象
+            let plotQueue = new PlotQueue(id, plotArray, keyNode);
+            allPlotQueues.set(id, plotQueue);
+        }
+        return allPlotQueues;
+    }
+    function strMapToObj(strMap) {
+        let obj = Object.create(null);
+        for (let [k, v] of strMap) {
+            obj[k] = v;
+        }
+        return obj;
+    }
+
+    function strMapToJson(strMap) {
+        return JSON.stringify(strMapToObj(strMap));
+    }
+    // 展示
+    function showResult() {
+        for (let obj of createPlotQueue().entries()) {
+            console.log(JSON.stringify(obj))
+            console.log(JSON.parse(JSON.stringify(obj)))
+        }
+    }
+
+    // 页面跳转
+    function turnToMain() {
+        localStorage.data = strMapToJson(allPlotQueues);
+        window.location.href = './index.html';
+    }
+
+    // 添加剧情队列
+    function addPlotList() {
+        let div = document.createElement('div');
+        div.innerHTML =
+            `
+            <div class="form-group">
+                <label for="">ID</label>
+                <input type="text" class="form-control list-id">
+            </div>
+            <button class="btn btn-default " name="addContent">添加内容</button>
+
+            <div class="keyNode">
+                <div class="form-group">
+                    <label for="">内容</label>
+                    <input type="text" class="form-control content">
+                </div>
+                <div class="form-group">
+                    <label for="">左按钮</label>
+                    <input type="text" class="form-control left-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">左结果</label>
+                    <input type="text" class="form-control left-result">
+                </div>
+                <div class="form-group">
+                    <label for="">右按钮</label>
+                    <input type="text" class="form-control right-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">右结果</label>
+                    <input type="text" class="form-control right-result">
+                </div>
+            </div>
+            <button class="btn btn-default " name="deleteList">删除列</button>
+        `;
+        div.classList.add('list-container');
+        let parent = document.querySelector('.total-container');
+        parent.insertBefore(div, parent.firstChild);
+    }
+
+    // 剧情队列点击事件
+    document.querySelector('.total-container').addEventListener('click', function (event) {
+        let documentName = event.target.name;
+        if (!documentName) {
+            return;
+        }
+        switch (documentName) {
+            case 'addContent': createPlotNode(event.target);break;
+            case 'deleteList': deletePlotList(event.target);break;
+        }
+    })
+
+    // 创建剧情节点
+    function createPlotNode(target) {
+        let div = document.createElement('div');
+        div.innerHTML =
+            `
+            <div class="form-group">
+                <label for="">内容</label>
+                <input type="text" class="form-control content">
+            </div>
+            <div class="form-group">
+                <label for="">左按钮</label>
+                <input type="text" class="form-control left-btn">
+            </div>
+            <div class="form-group">
+                <label for="">右按钮</label>
+                <input type="text" class="form-control right-btn">
+            </div>
+            <div class="form-group text-center">
+                <button class="btn btn-default">删除</button>
+            </div>
+        `;
+
+        div.classList.add('normalNode');
+        console.log(target);
+        target.parentNode.insertBefore(div, target);
+        // insertAfter(target,div);
+
+    }
+
+    // 删除一个队列
+    function deletePlotList(dom) {
+        console.log( document.querySelector('.total-container'));
+        document.querySelector('.total-container').removeChild(dom.parentNode);
+    }
+
+
+    //控制面板
+    document.querySelector('.control-panel').addEventListener('click', function (event) {
+        switch (event.target.id) {
+            case 'addlist': addPlotList(); break;
+            case 'complete': showResult(); break;
+            case 'turnTo': turnToMain(); break;
+        }
+    })
+
+    // function insertAfter(dom, newDom) {
+    //     let parentDom = dom.parentNode;
+    //     console.log(parentDom);
+    //     parentDom.insertBefore(newDom, dom.nextSibling);
+    // }
+</script>
+
+
+</html>

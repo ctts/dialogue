@@ -1,0 +1,31 @@
+.total-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.list-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    min-height: 120px;
+    border: 1px solid black;
+    padding: 10px;
+    margin: 0 10px 0 10px;
+}
+
+.keyNode {
+    width: 180px;
+    border: red 1px dashed;
+    margin: 10px 0 10px 0;
+    padding: 5px;
+}
+
+.normalNode {
+    width: 180px;
+    border: blue 1px dashed;
+    margin: 10px 0 10px 0;
+    padding: 5px;
+}

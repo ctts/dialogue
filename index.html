@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/index.css">
+
+    <title>对话</title>
+</head>
+
+<body>
+    <div class="container center-vertical" id="chat">
+        <div class="dialog">
+            <!-- <div class="left-person">
+                <img src="./images/logo.png" alt="">
+                <div>
+                    111111111111111111111111111111111111111111
+                </div>
+            </div> -->
+        </div>
+        <div class="bottom">
+            <button id="left_btn">选项1</button>
+            <button id="right_btn">选项2</button>
+        </div>
+    </div>
+
+</body>
+
+<!-- 引入类 -->
+<script src="./js/PlotNode.js"></script>
+<script>
+
+    let allPlotQueues = new Map();
+    let currentQueueId = 1; //当前剧情队列id
+    let currentPlotId = 0; //当前剧情id
+
+    //显示内容逻辑
+    function showContent(leftOrRight) {
+        let dialog = document.querySelector('.dialog');
+        let left_btn = document.getElementById('left_btn');
+        let right_btn = document.getElementById('right_btn');
+
+        // 得到当前节点
+        let currentQueue = allPlotQueues.get(currentQueueId);
+        if (!currentQueue) {
+            return;
+        }
+        // 取得当前节点,让id+1
+        let currentPlot = currentQueue.getPlotNode(currentPlotId);
+        // 判断当前节点是否是关键节
+        if (currentPlot.id == -1) {
+            //如果是左边，让当前剧情id等于leftNext,反之亦然。
+            leftOrRight === 'left' ?
+                currentQueueId = parseInt(currentPlot.leftNext) :
+                currentQueueId = parseInt(currentPlot.rightNext);
+            currentPlotId = 0;
+        } else {
+            currentPlotId++;
+            // 否则获得下个节点
+            var nextPlot = currentQueue.getPlotNode(currentPlotId);
+        }
+        // 显示对话
+        let rightDialog;  //创建右侧对话框
+        leftOrRight == 'left' ?
+            rightDialog = createDialog('right', currentPlot.leftOption) :
+            rightDialog = createDialog('right', currentPlot.rightOption);
+
+        dialog.appendChild(rightDialog);
+
+        // 按钮变化
+        if (nextPlot) {
+            let leftDialog = createDialog('left', nextPlot.content);  //创建左侧对话框
+            left_btn.textContent = nextPlot.leftOption; //设置按钮
+            right_btn.textContent = nextPlot.rightOption; //设置按钮
+            setTimeout(() => {
+                dialog.appendChild(leftDialog);
+            }, 500);
+        }
+    }
+
+    // 初始化结构
+    (function init() {
+        if (!localStorage.data) {
+            return;
+        }
+
+        let tempAllPlotQueues = objToStrMap(JSON.parse(localStorage.data));
+        console.log(JSON.parse(localStorage.data));
+        console.log(tempAllPlotQueues)
+        for (let plotqueue of tempAllPlotQueues.entries()) {
+            console.log(plotqueue)
+            // 新建关键节点
+            let key = plotqueue[1].keyNode;
+            let keyId = key.id;
+            let keyContent = key.content;
+            let leftOption = getChoice(key.leftNext, key.leftOption);
+            let rightOption = getChoice(key.rightNext, key.rightOption);
+            let keynode = new KeyNode(keyId, keyContent, leftOption, rightOption);
+            // 新建剧情节点
+            let plotqueues = [];
+            for (let i = 0; i < plotqueue[1].plotArray.length; i++) {
+                let temp = plotqueue[1].plotArray[i];
+                let plot = new PlotNode(temp.id, temp.content, temp.leftOption, temp.rightOption);
+                plotqueues.push(plot)
+            }
+            let queue = new PlotQueue(plotqueue[0], plotqueues, keynode);
+            allPlotQueues.set(parseInt(plotqueue[0]), queue);
+        }
+
+        for (let [k, v] of allPlotQueues.entries()) {
+            console.log(k, v)
+        }
+
+        // 开始初始化界面按钮
+        let dialog = document.querySelector('.dialog');
+        let left_btn = document.getElementById('left_btn');
+        let right_btn = document.getElementById('right_btn');
+        let first_node = allPlotQueues.get(1).getPlotNode(0);
+        left_btn.textContent = first_node.leftOption;
+        right_btn.textContent = first_node.rightOption;
+        dialog.append(createDialog('left', first_node.content));
+    })();
+
+
+    // 按钮点击事件冒泡
+    document.getElementById('chat').addEventListener('click', function (event) {
+        switch (event.target.id) {
+            case 'left_btn':
+                debounce(showContent, this, 'left');
+                break;
+            case 'right_btn':
+                debounce(showContent, this, 'right');
+                break;
+        }
+    })
+
+
+    // 新建对话框
+    function createDialog(direction, content) {
+        let temp = document.createElement('div');
+        temp.innerHTML = `
+        <div class="${direction}-person">
+            <img src="./images/logo.png" alt="">
+            <div>${content}</div>
+        </div>
+        `;
+        return temp;
+    }
+
+    // 对象转化为map
+    function objToStrMap(obj) {
+        let strMap = new Map();
+        for (let k of Object.keys(obj)) {
+            strMap.set(k, obj[k]);
+        }
+        return strMap;
+    }
+
+    // // 函数防抖
+    // function debounce(fn, context, time,...args) {
+    //     var lock = null;
+    //     return function () {
+    //         if (lock) { return; }
+    //         setTimeout(() => {
+    //             fn.apply(context,args)
+    //             lock = null;
+    //         }, time);
+    //     }
+    // }
+    //函数防抖
+    function debounce(method, context, ...args) {
+        clearTimeout(method.tid);
+        method.tid = setTimeout(() => {
+            method.apply(context, args);
+        }, 500)
+    }
+</script>
+
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <style type="text/css">
+        #box {
+            height: 0;
+            overflow: hidden;
+        }
+
+        #div {
+            background: blue;
+            width: 100px;
+            min-height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <span id="span">展开</span>
+    <div id="box">
+        <div id="div">我是div
+            我是div<br />
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var tween = {
+            linear: function (t, b, c, d) {
+                return c * t / d + b;
+            },
+            easeIn: function () {
+                return c * (t /= d) * t + b;
+            }
+        }
+
+        var Animate = function (dom) {
+            this.dom = dom;         // 进行运动的dom节点
+            this.startTime = 0;     // 动画开始的时间
+            this.startPos = 0;      // 动画开始时dom节点的位置
+            this.endPos = 0;
+            this.propertyName = null;
+            this.easing = null;
+            this.duration = null;
+        }
+        Animate.prototype.start = function (propertyName, endPos, duration, easing, fn) {
+            this.startTime = +new Date;
+            this.startPos = this.dom.getBoundingClientRect()[propertyName]
+            this.propertyName = propertyName
+            this.endPos = endPos;
+            this.duration = duration
+            this.easing = tween[easing]
+
+            var self = this;
+            var timeId = setInterval(function () {
+                if (self.step() === false) {
+                    clearInterval(timeId)
+                    fn && fn()
+                }
+            }, 19)
+        }
+        Animate.prototype.step = function () {
+            var t = +new Date;
+            if (t >= this.startTime + this.duration) {
+                this.update(this.endPos)
+                return false
+            }
+            var pos = this.easing(t - this.startTime, this.startPos, this.endPos - this.startPos, this.duration)
+            this.update(pos)
+        }
+        Animate.prototype.update = function (pos) {
+            this.dom.style[this.propertyName] = pos + 'px'
+        }
+        var div = document.getElementById('div')
+        var box = document.getElementById('box')
+        let sty = '收起'
+        let initPos = 0;
+        // alert(div.offsetHeight)
+        document.getElementById('span').onclick = function () {
+
+            let realH = div.offsetHeight
+            var animate = new Animate(box);
+            if (initPos !== 0) {
+                animate.start('height', 0, 1000, 'linear', function () {
+                    initPos = 0
+                })
+                return;
+            }
+            console.log(realH, div.style.height)
+
+            animate.start('height', realH, 1000, 'linear', function () {
+                initPos = box.offsetHeight
+            })
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,114 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #c5c4c4;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 600px;
+    background: white;
+}
+
+.center-vertical {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.dialog {
+    flex: 1;
+    flex-direction: column;
+    background: red;
+    overflow: hidden auto;
+}
+
+.dialog img {
+    width: 50px;
+    height: 50px;
+}
+
+.bottom {
+    overflow: hidden;
+    width: 100%;
+    font-size: 0;
+}
+
+.bottom>button {
+    display: inline-block;
+    width: 50%;
+    height: 50px;
+    background: blue;
+    font-size: 10px;
+}
+
+.left-person {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    margin: 5px;
+}
+
+.right-person {
+    display: flex;
+    flex-direction: row-reverse;
+    margin: 5px;
+}
+
+.left-person>div:last-child {
+    position: relative;
+    margin: 0 0 0 11px;
+    max-width: 80%;
+    max-width: -webkit-calc(100% - 67px);
+    /* overflow: hidden; */
+    overflow-wrap: break-word;
+    word-break: normal;
+    border: 1px solid white;
+}
+
+.left-person>div:last-child::before {
+    position: absolute;
+    left: -16px;
+    top: 10px;
+    content: '';
+    width: 0;
+    height: 0;
+    font-size: 0;
+    border-top: 8px solid transparent;
+    border-left: 8px solid transparent;
+    border-right: 8px solid white;
+    border-bottom: 8px solid transparent;
+}
+
+.right-person>div:last-child {
+    position: relative;
+    margin: 0 11px 0 0;
+    max-width: 80%;
+    max-width: -webkit-calc(100% - 67px);
+    /* overflow: hidden; */
+    overflow-wrap: break-word;
+    word-break: normal;
+    border: 1px solid white;
+}
+
+.right-person>div:last-child::before {
+    position: absolute;
+    right: -16px;
+    top: 10px;
+    content: '';
+    width: 0;
+    height: 0;
+    font-size: 0;
+    border-top: 8px solid transparent;
+    border-left: 8px solid white;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+}

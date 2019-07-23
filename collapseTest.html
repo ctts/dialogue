@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .collapse-header{
+
+    }
+
+    .collapse-body{
+        width: 200px;
+        height: 100pX;
+        overflow: hidden;
+        background: red;
+    }
+</style>
+<body>
+    <div>
+        <div class="collapse-header">点击折叠</div>
+        <div class="collapse-body" id="content">内容</div>
+    </div>
+
+    
+
+    <script>
+
+        function collapse(dom,status){
+            this.dom = dom;
+            this.status = status;
+            
+        }
+
+        document.querySelector('.collapse-header').addEventListener('click',function(){
+            let body = document.getElementById('content');
+            // if(body.style.height == '10px'){
+
+            // }
+            body.style.width != '10px'?body.style.width = '10px':body.style.width = '100px';
+            
+        })
+    </script>
+</body>
+</html>
