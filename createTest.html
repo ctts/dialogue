@@ -25,11 +25,20 @@
 
     <title>Document</title>
 </head>
+<style>
+    .control-panel {
+        margin: 10px;
+    }
+
+    .list-container {
+        border-radius: 5px;
+    }
+</style>
 
 <body>
     <div class="control-panel">
-        <button class="btn btn-default" id="addlist">添加</button>
-        <button class="btn btn-default" id="complete">完成</button>
+        <button class="btn btn-default" id="addlist">添加队列</button>
+        <button class="btn btn-default" id="complete">展示</button>
         <button class="btn btn-default" id="turnTo">转到</button>
     </div>
     <div class="total-container">
@@ -39,7 +48,7 @@
                 <input type="text" class="form-control list-id" value="1">
             </div>
             <button class="btn btn-default " name="addContent">添加内容</button>
-            <button class="btn btn-default " name="">折叠内容</button>
+            <!-- <button class="btn btn-default " name="">折叠内容</button> -->
 
             <div class="keyNode">
                 <div class="form-group">
@@ -63,13 +72,70 @@
                     <input type="text" class="form-control right-result">
                 </div>
             </div>
-
+            <button class="btn btn-default " name="deleteList">删除列</button>
         </div>
     </div>
-    <!-- 引入类 -->
-    <script src="./js/PlotNode.js"></script>
-</body>
 
+    <!-- 以下是模板 -->
+
+    <!-- list模板 -->
+    <template id="list_template">
+        <div class="list-container">
+            <div class="form-group">
+                <label for="">ID</label>
+                <input type="text" class="form-control list-id">
+            </div>
+            <button class="btn btn-default " name="addContent">添加内容</button>
+
+            <div class="keyNode">
+                <div class="form-group">
+                    <label for="">内容</label>
+                    <input type="text" class="form-control content">
+                </div>
+                <div class="form-group">
+                    <label for="">左按钮</label>
+                    <input type="text" class="form-control left-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">左结果</label>
+                    <input type="text" class="form-control left-result">
+                </div>
+                <div class="form-group">
+                    <label for="">右按钮</label>
+                    <input type="text" class="form-control right-btn">
+                </div>
+                <div class="form-group">
+                    <label for="">右结果</label>
+                    <input type="text" class="form-control right-result">
+                </div>
+            </div>
+            <button class="btn btn-default " name="deleteList">删除列</button>
+        </div>
+    </template>
+
+    <!-- 节点模板 -->
+    <template id="item_template">
+        <div class="normalNode">
+            <div class="form-group">
+                <label for="">内容</label>
+                <input type="text" class="form-control content">
+            </div>
+            <div class="form-group">
+                <label for="">左按钮</label>
+                <input type="text" class="form-control left-btn">
+            </div>
+            <div class="form-group">
+                <label for="">右按钮</label>
+                <input type="text" class="form-control right-btn">
+            </div>
+            <div class="form-group text-center">
+                <button class="btn btn-default" name="deleteItem">删除项</button>
+            </div>
+        </div>
+    </template>
+</body>
+<!-- 引入类 -->
+<script src="./js/PlotNode.js"></script>
 <script>
     let allPlotQueues = new Map();
     function createPlotQueue() {
@@ -117,6 +183,7 @@
             console.log(JSON.stringify(obj))
             console.log(JSON.parse(JSON.stringify(obj)))
         }
+        console.log(JSON.stringify(strMapToObj(allPlotQueues)))
     }
 
     // 页面跳转
@@ -127,9 +194,20 @@
 
     // 添加剧情队列
     function addPlotList() {
-        let div = document.createElement('div');
-        div.innerHTML =
-            `
+        // 判断是否支持模板，若支持
+        if ('content' in document.createElement('template')) {
+            // 找到模板
+            let list = document.querySelector('#list_template');
+            //深拷贝template
+            let template = document.importNode(list.content, true);
+            // 插入
+            let parent = document.querySelector('.total-container');
+            parent.insertBefore(template, parent.firstChild);
+        } else {
+            // 若不支持
+            let div = document.createElement('div');
+            div.innerHTML =
+                `
             <div class="form-group">
                 <label for="">ID</label>
                 <input type="text" class="form-control list-id">
@@ -160,9 +238,10 @@
             </div>
             <button class="btn btn-default " name="deleteList">删除列</button>
         `;
-        div.classList.add('list-container');
-        let parent = document.querySelector('.total-container');
-        parent.insertBefore(div, parent.firstChild);
+            div.classList.add('list-container');
+            let parent = document.querySelector('.total-container');
+            parent.insertBefore(div, parent.firstChild);
+        }
     }
 
     // 剧情队列点击事件
@@ -172,16 +251,25 @@
             return;
         }
         switch (documentName) {
-            case 'addContent': createPlotNode(event.target);break;
-            case 'deleteList': deletePlotList(event.target);break;
+            case 'addContent': createPlotNode(event.target); break;
+            case 'deleteList': deletePlotList(event.target); break;
+            case 'deleteItem': deletePlotItem(event.target); break;
         }
     })
 
     // 创建剧情节点
     function createPlotNode(target) {
-        let div = document.createElement('div');
-        div.innerHTML =
-            `
+        if ('content' in document.createElement('template')) {
+            // 找到模板
+            let item = document.querySelector('#item_template');
+            //深拷贝
+            let node = document.importNode(item.content, true);
+            // 插入
+            target.parentNode.insertBefore(node, target);
+        } else {
+            let div = document.createElement('div');
+            div.innerHTML =
+                `
             <div class="form-group">
                 <label for="">内容</label>
                 <input type="text" class="form-control content">
@@ -195,23 +283,25 @@
                 <input type="text" class="form-control right-btn">
             </div>
             <div class="form-group text-center">
-                <button class="btn btn-default">删除</button>
+                <button class="btn btn-default" name="deleteItem">删除项</button>
             </div>
         `;
 
-        div.classList.add('normalNode');
-        console.log(target);
-        target.parentNode.insertBefore(div, target);
-        // insertAfter(target,div);
-
+            div.classList.add('normalNode');
+            target.parentNode.insertBefore(div, target);
+        }
     }
 
     // 删除一个队列
     function deletePlotList(dom) {
-        console.log( document.querySelector('.total-container'));
         document.querySelector('.total-container').removeChild(dom.parentNode);
     }
 
+    // 删除一个节点
+    function deletePlotItem(dom) {
+        let aimNode = dom.parentNode.parentNode;
+        aimNode.parentNode.removeChild(aimNode);
+    }
 
     //控制面板
     document.querySelector('.control-panel').addEventListener('click', function (event) {
@@ -222,11 +312,6 @@
         }
     })
 
-    // function insertAfter(dom, newDom) {
-    //     let parentDom = dom.parentNode;
-    //     console.log(parentDom);
-    //     parentDom.insertBefore(newDom, dom.nextSibling);
-    // }
 </script>
 
 

@@ -86,10 +86,8 @@
         if (!localStorage.data) {
             return;
         }
-
+        console.log(localStorage.data)
         let tempAllPlotQueues = objToStrMap(JSON.parse(localStorage.data));
-        console.log(JSON.parse(localStorage.data));
-        console.log(tempAllPlotQueues)
         for (let plotqueue of tempAllPlotQueues.entries()) {
             console.log(plotqueue)
             // 新建关键节点
@@ -129,10 +127,10 @@
     document.getElementById('chat').addEventListener('click', function (event) {
         switch (event.target.id) {
             case 'left_btn':
-                debounce(showContent, this, 'left');
+                debounce(showContent, 500, 'left');
                 break;
             case 'right_btn':
-                debounce(showContent, this, 'right');
+                debounce(showContent, 500, 'right');
                 break;
         }
     })
@@ -159,17 +157,6 @@
         return strMap;
     }
 
-    // // 函数防抖
-    // function debounce(fn, context, time,...args) {
-    //     var lock = null;
-    //     return function () {
-    //         if (lock) { return; }
-    //         setTimeout(() => {
-    //             fn.apply(context,args)
-    //             lock = null;
-    //         }, time);
-    //     }
-    // }
     //函数防抖
     function debounce(method, context, ...args) {
         clearTimeout(method.tid);
