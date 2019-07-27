@@ -26,7 +26,12 @@
             <button id="right_btn">选项2</button>
         </div>
     </div>
-
+    <template id="dialog_template">
+        <div>
+            <img src="./images/logo.png" alt="">
+            <div></div>
+        </div>
+    </template>
 </body>
 
 <!-- 引入类 -->
@@ -36,9 +41,11 @@
     let allPlotQueues = new Map();
     let currentQueueId = 1; //当前剧情队列id
     let currentPlotId = 0; //当前剧情id
+    let animating = false; //是否正在显示
 
     //显示内容逻辑
     function showContent(leftOrRight) {
+        if(animating) return;  //如果正在显示，直接返回
         let dialog = document.querySelector('.dialog');
         let left_btn = document.getElementById('left_btn');
         let right_btn = document.getElementById('right_btn');
@@ -68,22 +75,23 @@
             rightDialog = createDialog('right', currentPlot.leftOption) :
             rightDialog = createDialog('right', currentPlot.rightOption);
 
-        dialog.appendChild(rightDialog);
-
+        // showDialog(rightDialog);
         // 按钮变化
         if (nextPlot) {
             let leftDialog = createDialog('left', nextPlot.content);  //创建左侧对话框
             left_btn.textContent = nextPlot.leftOption; //设置按钮
             right_btn.textContent = nextPlot.rightOption; //设置按钮
-            setTimeout(() => {
-                dialog.appendChild(leftDialog);
-            }, 500);
+            race(rightDialog).then(() => {
+                race(leftDialog);
+                animating = false;
+            })
         }
     }
 
     // 初始化结构
     (function init() {
         if (!localStorage.data) {
+            alert('没有数据');
             return;
         }
         console.log(localStorage.data)
@@ -116,10 +124,18 @@
         let dialog = document.querySelector('.dialog');
         let left_btn = document.getElementById('left_btn');
         let right_btn = document.getElementById('right_btn');
+        console.log(allPlotQueues);
         let first_node = allPlotQueues.get(1).getPlotNode(0);
         left_btn.textContent = first_node.leftOption;
         right_btn.textContent = first_node.rightOption;
-        dialog.append(createDialog('left', first_node.content));
+        let plots_nodes = createDialog('left', first_node.content);
+        // 显示开头
+        race(plots_nodes).then(()=>{
+            animating = false;
+        })
+        // plots_nodes.forEach(node => {
+        //     dialog.appendChild(node);
+        // })
     })();
 
 
@@ -138,14 +154,40 @@
 
     // 新建对话框
     function createDialog(direction, content) {
-        let temp = document.createElement('div');
-        temp.innerHTML = `
-        <div class="${direction}-person">
-            <img src="./images/logo.png" alt="">
-            <div>${content}</div>
-        </div>
-        `;
-        return temp;
+        let plots = content.trim().split(" ");
+        let dialogs = plots.map(plot => {
+            let temp = document.createElement('div');
+            temp.innerHTML =
+                `
+                <div class="${direction}-person">
+                    <img src="./images/logo.png" alt="">
+                    <div>${plot}</div>
+                </div>
+            `;
+            return temp;
+        });
+        console.log(dialogs);
+        return dialogs;
+    }
+
+    function race(arr) {
+        animating = true;
+        let dialog = document.querySelector('.dialog');
+
+        var promise = new Promise(function (resolve, reject) {
+            let interval = setInterval(() => {
+                // 添加节点
+                dialog.appendChild(arr.shift());
+                // 将界面拉倒底部
+                dialog.scrollTop = dialog.scrollHeight;
+                // 结束返回
+                if (arr.length <= 0) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 1000);
+        })
+        return promise;
     }
 
     // 对象转化为map
