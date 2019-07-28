@@ -37,43 +37,14 @@
 
 <body>
     <div class="control-panel">
-        <button class="btn btn-default" id="addlist">添加队列</button>
-        <button class="btn btn-default" id="complete">展示</button>
-        <button class="btn btn-default" id="turnTo">转到</button>
+        <button class="btn btn-primary" id="addlist">添加队列</button>
+        <button class="btn btn-success" id="complete">展示</button>
+        <button class="btn btn-warning" id="turnTo">转到</button>
+        <button class="btn btn-danger" id="clear">清空缓存</button>
+
     </div>
     <div class="total-container">
-        <div class="list-container">
-            <div class="form-group">
-                <label for="">ID</label>
-                <input type="text" class="form-control list-id" value="1">
-            </div>
-            <button class="btn btn-default " name="addContent">添加内容</button>
-            <!-- <button class="btn btn-default " name="">折叠内容</button> -->
 
-            <div class="keyNode">
-                <div class="form-group">
-                    <label for="">内容</label>
-                    <input type="text" class="form-control content">
-                </div>
-                <div class="form-group">
-                    <label for="">左按钮</label>
-                    <input type="text" class="form-control left-btn">
-                </div>
-                <div class="form-group">
-                    <label for="">左结果</label>
-                    <input type="text" class="form-control left-result">
-                </div>
-                <div class="form-group">
-                    <label for="">右按钮</label>
-                    <input type="text" class="form-control right-btn">
-                </div>
-                <div class="form-group">
-                    <label for="">右结果</label>
-                    <input type="text" class="form-control right-result">
-                </div>
-            </div>
-            <button class="btn btn-default " name="deleteList">删除列</button>
-        </div>
     </div>
 
     <!-- 以下是模板 -->
@@ -85,7 +56,7 @@
                 <label for="">ID</label>
                 <input type="text" class="form-control list-id">
             </div>
-            <button class="btn btn-default " name="addContent">添加内容</button>
+            <button class="btn btn-primary addContent" name="addContent">添加内容</button>
 
             <div class="keyNode">
                 <div class="form-group">
@@ -109,7 +80,7 @@
                     <input type="text" class="form-control right-result">
                 </div>
             </div>
-            <button class="btn btn-default " name="deleteList">删除列</button>
+            <button class="btn btn-danger " name="deleteList">删除列</button>
         </div>
     </template>
 
@@ -129,15 +100,68 @@
                 <input type="text" class="form-control right-btn">
             </div>
             <div class="form-group text-center">
-                <button class="btn btn-default" name="deleteItem">删除项</button>
+                <button class="btn btn-danger" name="deleteItem">删除项</button>
             </div>
         </div>
     </template>
+
+
 </body>
 <!-- 引入类 -->
 <script src="./js/PlotNode.js"></script>
 <script>
     let allPlotQueues = new Map();
+
+
+    // 初始化，读取缓存
+    window.onload = () => {
+        // 若不存在缓存，添加第一个list
+        if (!localStorage.getItem('data')) {
+            let first = document.importNode(document.querySelector('#list_template').content, true);
+            document.querySelector('.total-container').appendChild(first);
+        } else {
+            let tempAllPlotQueues = objToStrMap(JSON.parse(localStorage.data));
+            for (let plotqueue of tempAllPlotQueues.entries()) {
+                // 获取队列模板,并克隆
+                let list_template = document.importNode(document.getElementById('list_template').content, true);
+                // 设置id
+                // console.log(list_template)
+                list_template.querySelector('.list-id').value = plotqueue[1].id;
+
+                let addButton = list_template.querySelector('.addContent');
+                let list_container = list_template.querySelector('.list-container');
+                // 历遍剧情数组
+                let plotqueues = plotqueue[1].plotArray.forEach((val, index) => {
+                    // 新建剧情节点
+                    let item_template = document.importNode(document.getElementById('item_template').content, true);
+                    // console.log(item_template)
+                    item_template.querySelector('.content').value = val.content;
+                    item_template.querySelector('.left-btn').value = val.leftOption;
+                    item_template.querySelector('.right-btn').value = val.rightOption;
+                    // 将每个节点插入添加内容按钮之前
+                    list_container.insertBefore(item_template, addButton)
+                });
+
+                // 将关键节点传入
+                let keyNode = list_container.querySelector('.keyNode');
+                let key = plotqueue[1].keyNode;
+                keyNode.querySelector('.content').value = key.content;
+                keyNode.querySelector('.left-btn').value = key.leftOption;
+                keyNode.querySelector('.left-result').value = key.leftNext;
+                keyNode.querySelector('.right-btn').value = key.rightOption;
+                keyNode.querySelector('.right-result').value = key.rightNext;
+
+                //在list中插入
+                document.querySelector('.total-container').appendChild(list_template);
+
+            }
+        }
+
+    }
+
+
+
+    // 新建队列
     function createPlotQueue() {
         let list_containers = document.querySelectorAll('.list-container');
         for (let list of list_containers) {
@@ -162,10 +186,12 @@
             let keyNode = new KeyNode(-1, keyNodeContent, getChoice(keyNodeLeftResult, keyNodeLeftBtn), getChoice(keyNodeRightResult, keyNodeRightBtn));
             //新建一个剧情对象
             let plotQueue = new PlotQueue(id, plotArray, keyNode);
+            // 将所有内容放入全局对象
             allPlotQueues.set(id, plotQueue);
         }
-        return allPlotQueues;
     }
+
+    // map转对象
     function strMapToObj(strMap) {
         let obj = Object.create(null);
         for (let [k, v] of strMap) {
@@ -174,22 +200,35 @@
         return obj;
     }
 
+    // map转json
     function strMapToJson(strMap) {
         return JSON.stringify(strMapToObj(strMap));
     }
     // 展示
     function showResult() {
-        for (let obj of createPlotQueue().entries()) {
-            console.log(JSON.stringify(obj))
-            console.log(JSON.parse(JSON.stringify(obj)))
-        }
-        console.log(JSON.stringify(strMapToObj(allPlotQueues)))
+        // for (let obj of createPlotQueue().entries()) {
+        //     console.log(JSON.stringify(obj))
+        //     console.log(JSON.parse(JSON.stringify(obj)))
+        // }
+        // 执行
+        createPlotQueue();
+        // 显示
+        console.log(JSON.stringify(strMapToObj(allPlotQueues)));
+        //存储
+        localStorage.setItem('data', strMapToJson(allPlotQueues));
     }
 
     // 页面跳转
     function turnToMain() {
-        localStorage.data = strMapToJson(allPlotQueues);
-        window.location.href = './index.html';
+        let msg = "是否跳转到显示页面？";
+        if (confirm(msg)) {
+            // 执行
+            createPlotQueue();
+            // 存储
+            localStorage.setItem('data', strMapToJson(allPlotQueues));
+            // 跳转
+            window.location.href = './index.html';
+        }
     }
 
     // 添加剧情队列
@@ -212,7 +251,7 @@
                 <label for="">ID</label>
                 <input type="text" class="form-control list-id">
             </div>
-            <button class="btn btn-default " name="addContent">添加内容</button>
+            <button class="btn btn-primary " name="addContent">添加内容</button>
 
             <div class="keyNode">
                 <div class="form-group">
@@ -236,7 +275,7 @@
                     <input type="text" class="form-control right-result">
                 </div>
             </div>
-            <button class="btn btn-default " name="deleteList">删除列</button>
+            <button class="btn btn-danger " name="deleteList">删除列</button>
         `;
             div.classList.add('list-container');
             let parent = document.querySelector('.total-container');
@@ -283,7 +322,7 @@
                 <input type="text" class="form-control right-btn">
             </div>
             <div class="form-group text-center">
-                <button class="btn btn-default" name="deleteItem">删除项</button>
+                <button class="btn btn-danger" name="deleteItem">删除项</button>
             </div>
         `;
 
@@ -309,8 +348,25 @@
             case 'addlist': addPlotList(); break;
             case 'complete': showResult(); break;
             case 'turnTo': turnToMain(); break;
+            case 'clear': clear(); break;
         }
     })
+
+    function clear() {
+        let msg = "你确认要清空缓存和当前数据吗！！！";
+        if (confirm(msg)) {
+            alert('success')
+        }
+    }
+
+    // 对象转化为map
+    function objToStrMap(obj) {
+        let strMap = new Map();
+        for (let k of Object.keys(obj)) {
+            strMap.set(k, obj[k]);
+        }
+        return strMap;
+    }
 
 </script>
 

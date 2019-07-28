@@ -45,7 +45,7 @@
 
     //显示内容逻辑
     function showContent(leftOrRight) {
-        if(animating) return;  //如果正在显示，直接返回
+        if (animating) return;  //如果正在显示，直接返回
         let dialog = document.querySelector('.dialog');
         let left_btn = document.getElementById('left_btn');
         let right_btn = document.getElementById('right_btn');
@@ -81,8 +81,12 @@
             let leftDialog = createDialog('left', nextPlot.content);  //创建左侧对话框
             left_btn.textContent = nextPlot.leftOption; //设置按钮
             right_btn.textContent = nextPlot.rightOption; //设置按钮
+
+            // 先显示右边，再显示左边
             race(rightDialog).then(() => {
-                race(leftDialog);
+                return race(leftDialog)
+            })
+            .then(() => {
                 animating = false;
             })
         }
@@ -130,12 +134,9 @@
         right_btn.textContent = first_node.rightOption;
         let plots_nodes = createDialog('left', first_node.content);
         // 显示开头
-        race(plots_nodes).then(()=>{
+        race(plots_nodes).then(() => {
             animating = false;
         })
-        // plots_nodes.forEach(node => {
-        //     dialog.appendChild(node);
-        // })
     })();
 
 
@@ -143,10 +144,12 @@
     document.getElementById('chat').addEventListener('click', function (event) {
         switch (event.target.id) {
             case 'left_btn':
-                debounce(showContent, 500, 'left');
+                // debounce(showContent, this, 1500, 'left');
+                showContent('left')
                 break;
             case 'right_btn':
-                debounce(showContent, 500, 'right');
+                showContent('right')
+                // debounce(showContent, this, 1500, 'right');
                 break;
         }
     })
@@ -200,11 +203,19 @@
     }
 
     //函数防抖
-    function debounce(method, context, ...args) {
-        clearTimeout(method.tid);
-        method.tid = setTimeout(() => {
-            method.apply(context, args);
-        }, 500)
+    function debounce(func, context, wait, ...args) {
+        let timeout;  // 定时器变量
+        //清空定时器
+        if (timeout) clearTimeout(timeout);
+        //设置callnow取反
+        let callNow = !timeout;
+        timeout = setTimeout(() => {
+            timeout = null;
+        }, wait)
+        //若callnow存在，则执行
+        if (callNow) {
+            func.apply(context, args)
+        }
     }
 </script>
 
