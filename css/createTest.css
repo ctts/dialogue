@@ -1,19 +1,44 @@
+body {
+    background: rgb(247, 247, 250);
+}
+
+
 .total-container {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
     flex-direction: row;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
     align-items: flex-start;
 }
 
 .list-container {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
     flex-direction: column;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
     justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
     align-items: center;
     width: 200px;
     min-height: 120px;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 10px;
     margin: 0 10px 0 10px;
+    border-radius: 5px;
+    background: #ffffff;
+    -webkit-box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
 }
 
 .keyNode {
@@ -28,4 +53,8 @@
     border: blue 1px dashed;
     margin: 10px 0 10px 0;
     padding: 5px;
+}
+
+.control-panel {
+    margin: 10px;
 }

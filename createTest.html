@@ -25,15 +25,6 @@
 
     <title>Document</title>
 </head>
-<style>
-    .control-panel {
-        margin: 10px;
-    }
-
-    .list-container {
-        border-radius: 5px;
-    }
-</style>
 
 <body>
     <div class="control-panel">
@@ -41,12 +32,37 @@
         <button class="btn btn-success" id="complete">展示</button>
         <button class="btn btn-warning" id="turnTo">转到</button>
         <button class="btn btn-danger" id="clear">清空缓存</button>
-
+        <button class="btn btn-default" data-toggle="modal" data-target="#myModal" id="import">导入代码</button>
     </div>
     <div class="total-container">
 
     </div>
 
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        json代码
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="jsonCode">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" id="postData">
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 以下是模板 -->
 
     <!-- list模板 -->
@@ -107,6 +123,7 @@
 
 
 </body>
+
 <!-- 引入类 -->
 <script src="./js/PlotNode.js"></script>
 <script>
@@ -158,8 +175,6 @@
         }
 
     }
-
-
 
     // 新建队列
     function createPlotQueue() {
@@ -352,10 +367,21 @@
         }
     })
 
+    document.getElementById('postData').addEventListener('click',importData);
+    // 代码导入
+    function importData() {
+        let json = document.querySelector('#jsonCode').value;
+        // 将json导入本地
+        localStorage.setItem('data',json);
+        location.reload();
+    }
+
+    // 清空数据
     function clear() {
         let msg = "你确认要清空缓存和当前数据吗！！！";
         if (confirm(msg)) {
-            alert('success')
+            localStorage.removeItem('data');
+            location.reload();
         }
     }
 
