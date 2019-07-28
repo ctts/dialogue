@@ -13,14 +13,7 @@
 
 <body>
     <div class="container center-vertical" id="chat">
-        <div class="dialog">
-            <!-- <div class="left-person">
-                <img src="./images/logo.png" alt="">
-                <div>
-                    111111111111111111111111111111111111111111
-                </div>
-            </div> -->
-        </div>
+        <div class="dialog"></div>
         <div class="bottom">
             <button id="left_btn">选项1</button>
             <button id="right_btn">选项2</button>
@@ -144,12 +137,10 @@
     document.getElementById('chat').addEventListener('click', function (event) {
         switch (event.target.id) {
             case 'left_btn':
-                // debounce(showContent, this, 1500, 'left');
                 showContent('left')
                 break;
             case 'right_btn':
                 showContent('right')
-                // debounce(showContent, this, 1500, 'right');
                 break;
         }
     })
@@ -200,22 +191,6 @@
             strMap.set(k, obj[k]);
         }
         return strMap;
-    }
-
-    //函数防抖
-    function debounce(func, context, wait, ...args) {
-        let timeout;  // 定时器变量
-        //清空定时器
-        if (timeout) clearTimeout(timeout);
-        //设置callnow取反
-        let callNow = !timeout;
-        timeout = setTimeout(() => {
-            timeout = null;
-        }, wait)
-        //若callnow存在，则执行
-        if (callNow) {
-            func.apply(context, args)
-        }
     }
 </script>
 

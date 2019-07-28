@@ -1,13 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-}
 
-body {
-    margin: 0;
-    padding: 0;
-    background: #c5c4c4;
-}
 
 .container {
     display: flex;
