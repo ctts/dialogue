@@ -21,8 +21,10 @@
     </div>
     <template id="dialog_template">
         <div>
-            <img src="./images/logo.png" alt="">
-            <div></div>
+            <div id="wapper">
+                <img src="./images/logo.png" alt="" class="head">
+                <div id="talk"></div>
+            </div>
         </div>
     </template>
 </body>
@@ -38,6 +40,7 @@
 
     //显示内容逻辑
     function showContent(leftOrRight) {
+        console.log(animating);
         if (animating) return;  //如果正在显示，直接返回
         let dialog = document.querySelector('.dialog');
         let left_btn = document.getElementById('left_btn');
@@ -50,6 +53,7 @@
         }
         // 取得当前节点,让id+1
         let currentPlot = currentQueue.getPlotNode(currentPlotId);
+        let nextPlot;
         // 判断当前节点是否是关键节
         if (currentPlot.id == -1) {
             //如果是左边，让当前剧情id等于leftNext,反之亦然。
@@ -57,10 +61,12 @@
                 currentQueueId = parseInt(currentPlot.leftNext) :
                 currentQueueId = parseInt(currentPlot.rightNext);
             currentPlotId = 0;
+            // 获得下个节点，若没有下个节点，则返回
+            nextPlot = allPlotQueues.get(currentQueueId).getPlotNode(currentPlotId);
         } else {
             currentPlotId++;
             // 否则获得下个节点
-            var nextPlot = currentQueue.getPlotNode(currentPlotId);
+            nextPlot = currentQueue.getPlotNode(currentPlotId);
         }
         // 显示对话
         let rightDialog;  //创建右侧对话框
@@ -78,8 +84,7 @@
             // 先显示右边，再显示左边
             race(rightDialog).then(() => {
                 return race(leftDialog)
-            })
-            .then(() => {
+            }).then(() => {
                 animating = false;
             })
         }
@@ -94,7 +99,7 @@
         console.log(localStorage.data)
         let tempAllPlotQueues = objToStrMap(JSON.parse(localStorage.data));
         for (let plotqueue of tempAllPlotQueues.entries()) {
-            console.log(plotqueue)
+            // console.log(plotqueue)
             // 新建关键节点
             let key = plotqueue[1].keyNode;
             let keyId = key.id;
@@ -113,9 +118,9 @@
             allPlotQueues.set(parseInt(plotqueue[0]), queue);
         }
 
-        for (let [k, v] of allPlotQueues.entries()) {
-            console.log(k, v)
-        }
+        // for (let [k, v] of allPlotQueues.entries()) {
+        //     console.log(k, v)
+        // }
 
         // 开始初始化界面按钮
         let dialog = document.querySelector('.dialog');
@@ -149,18 +154,28 @@
     // 新建对话框
     function createDialog(direction, content) {
         let plots = content.trim().split(" ");
-        let dialogs = plots.map(plot => {
-            let temp = document.createElement('div');
-            temp.innerHTML =
-                `
+        let dialogs;
+        if ('content' in document.createElement('template')) {
+            dialogs = plots.map(plot => {
+                let template = document.importNode(document.getElementById('dialog_template').content, true);
+                template.querySelector('#wapper').className = direction + '-person';
+                template.querySelector('#talk').textContent = content;
+                return template;
+            });
+        } else {
+            dialogs = plots.map(plot => {
+                let temp = document.createElement('div');
+                temp.innerHTML =
+                    `
                 <div class="${direction}-person">
                     <img src="./images/logo.png" alt="">
                     <div>${plot}</div>
                 </div>
             `;
-            return temp;
-        });
-        console.log(dialogs);
+                return temp;
+            });
+        }
+
         return dialogs;
     }
 
