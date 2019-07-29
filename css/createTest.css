@@ -2,6 +2,9 @@ body {
     background: rgb(247, 247, 250);
 }
 
+button{
+    outline: none !important;
+}
 
 .total-container {
     display: -webkit-box;

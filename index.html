@@ -5,20 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- jquery -->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/index.css">
-
     <title>对话</title>
 </head>
 
 <body>
-    <div class="container center-vertical" id="chat">
-        <div class="dialog"></div>
-        <div class="bottom">
-            <button id="left_btn">选项1</button>
-            <button id="right_btn">选项2</button>
+    <div class="wapper">
+        <div class="container center-vertical" id="chat">
+            <div class="total-head">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <p>亲亲女朋友</p>
+                <span class="glyphicon glyphicon-earphone" aria-hidden="true"></span>
+            </div>
+            <div class="dialog"></div>
+            <div class="bottom">
+                <button class="btn btn-info" id="left_btn">选项1</button>
+                <button class="btn btn-info" id="right_btn">选项2</button>
+            </div>
         </div>
     </div>
+
     <template id="dialog_template">
         <div>
             <div id="wapper">
@@ -37,6 +56,14 @@
     let currentQueueId = 1; //当前剧情队列id
     let currentPlotId = 0; //当前剧情id
     let animating = false; //是否正在显示
+
+    // 开始
+    window.onload = () => {
+        // 取消注释，在msg处导入json
+        // let msg = "";
+        // localStorage.setItem('data',msg);        
+        init();
+    }
 
     //显示内容逻辑
     function showContent(leftOrRight) {
@@ -62,7 +89,11 @@
                 currentQueueId = parseInt(currentPlot.rightNext);
             currentPlotId = 0;
             // 获得下个节点，若没有下个节点，则返回
-            nextPlot = allPlotQueues.get(currentQueueId).getPlotNode(currentPlotId);
+            if (allPlotQueues.get(currentQueueId)) {
+                nextPlot = allPlotQueues.get(currentQueueId).getPlotNode(currentPlotId);
+            } else {
+                alert('已到达最后。');
+            }
         } else {
             currentPlotId++;
             // 否则获得下个节点
@@ -91,7 +122,7 @@
     }
 
     // 初始化结构
-    (function init() {
+    function init() {
         if (!localStorage.data) {
             alert('没有数据');
             return;
@@ -135,7 +166,7 @@
         race(plots_nodes).then(() => {
             animating = false;
         })
-    })();
+    }
 
 
     // 按钮点击事件冒泡
@@ -159,7 +190,8 @@
             dialogs = plots.map(plot => {
                 let template = document.importNode(document.getElementById('dialog_template').content, true);
                 template.querySelector('#wapper').className = direction + '-person';
-                template.querySelector('#talk').textContent = content;
+                template.querySelector('#talk').textContent = plot;
+                template.querySelector('img').setAttribute('src', `./images/${direction}_head.png`);
                 return template;
             });
         } else {
@@ -168,7 +200,7 @@
                 temp.innerHTML =
                     `
                 <div class="${direction}-person">
-                    <img src="./images/logo.png" alt="">
+                    <img src="./images/${direction}_head.png" alt="">
                     <div>${plot}</div>
                 </div>
             `;
@@ -206,6 +238,18 @@
             strMap.set(k, obj[k]);
         }
         return strMap;
+    }
+
+    // 媒体查询
+    // return: true 是pc ， false 是移动设备
+    function mediaQueries() {
+        var userAgentInfo = navigator.userAgent;
+        var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+        var flag = true;
+        for (var v = 0; v < Agents.length; v++) {
+            if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+        }
+        return flag;
     }
 </script>
 
