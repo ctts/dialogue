@@ -32,8 +32,8 @@
             </div>
             <div class="dialog"></div>
             <div class="bottom">
-                <button class="btn btn-info" id="left_btn">选项1</button>
-                <button class="btn btn-info" id="right_btn">选项2</button>
+                <button class="btn btn-info" id="left_btn"></button>
+                <button class="btn btn-info" id="right_btn"></button>
             </div>
         </div>
     </div>
@@ -109,13 +109,14 @@
         // 按钮变化
         if (nextPlot) {
             let leftDialog = createDialog('left', nextPlot.content);  //创建左侧对话框
-            left_btn.textContent = nextPlot.leftOption; //设置按钮
-            right_btn.textContent = nextPlot.rightOption; //设置按钮
+
 
             // 先显示右边，再显示左边
             race(rightDialog).then(() => {
                 return race(leftDialog)
             }).then(() => {
+                left_btn.textContent = nextPlot.leftOption; //设置左按钮
+                right_btn.textContent = nextPlot.rightOption; //设置右按钮
                 animating = false;
             })
         }
@@ -158,12 +159,18 @@
         let left_btn = document.getElementById('left_btn');
         let right_btn = document.getElementById('right_btn');
         console.log(allPlotQueues);
+        if (!allPlotQueues.get(1)) {
+            alert('未找到首节点,请确认剧本中存在id为1的队列');
+            return;
+        }
         let first_node = allPlotQueues.get(1).getPlotNode(0);
-        left_btn.textContent = first_node.leftOption;
-        right_btn.textContent = first_node.rightOption;
+
         let plots_nodes = createDialog('left', first_node.content);
         // 显示开头
         race(plots_nodes).then(() => {
+            // 更换按钮上的字
+            left_btn.textContent = first_node.leftOption;
+            right_btn.textContent = first_node.rightOption;
             animating = false;
         })
     }
@@ -184,7 +191,12 @@
 
     // 新建对话框
     function createDialog(direction, content) {
-        let plots = content.trim().split(" ");
+        // 去掉重复的空格
+        // content = content.replace(/\s+/g, " ");
+        // let plots = content.trim().split(" ");
+
+        // 按照/n划分
+        let plots = content.trim().split("/n");
         let dialogs;
         if ('content' in document.createElement('template')) {
             dialogs = plots.map(plot => {

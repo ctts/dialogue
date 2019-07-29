@@ -48,9 +48,14 @@ body {
     width: 50%;
     height: 45px;
     font-size: 10px;
-    word-wrap: break-word;
+
+    /* 文字换行 */
+    word-wrap: break-word !important;
+    word-break: break-all !important;
+    white-space: normal !important;
 
 }
+
 
 .left-person {
     display: flex;
