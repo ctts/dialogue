@@ -32,7 +32,7 @@
 ## 操作文档
 我们先看一下原理。
 
- ![image](http://github.com/yourname/your-repository/raw/master/images-folder/xxx.png)
+ ![image](http://github.com/ctts/dialogue/raw/dev/images/原理.png)
 
 ### 添加队列按钮
   点击可以添加一个剧情队列
