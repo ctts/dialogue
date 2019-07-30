@@ -32,6 +32,9 @@
 ## 操作文档
 我们先看一下原理。
 
+images/原理.png
+![Image text](https://raw.github.com/ctts/repositpry/dev/dialogu/images/原理.png)
+
 ### 添加队列按钮
   点击可以添加一个剧情队列
   
