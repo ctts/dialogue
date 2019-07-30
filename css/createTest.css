@@ -61,3 +61,10 @@ button{
 .control-panel {
     margin: 10px;
 }
+
+.tips{
+    height: 10px;
+    line-height: 10px;
+    color: red;
+    font-size: 20px;
+}
