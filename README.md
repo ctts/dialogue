@@ -33,6 +33,8 @@
 我们先看一下原理。
 
  ![image](https://github.com/ctts/dialogue/raw/dev/images/原理.png)
+ 
+ 全文是通过队列的id将剧情串联起来，通过关键节点中的id，联系到下个节点，如此反复。
 
 ### 添加队列按钮
   点击可以添加一个剧情队列
