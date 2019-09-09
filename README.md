@@ -9,6 +9,7 @@
 ## 效果图
 
  ![image](https://github.com/ctts/dialogue/raw/dev/images/效果图.png)
+ ![image](https://github.com/ctts/dialogue/raw/dev/images/创建页面.png)
  
 ## 用法
 用法分为新建和导入，建议先导入测试json来查看效果。
